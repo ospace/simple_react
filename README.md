@@ -1,1 +1,2 @@
-# simple_react
+# Simple React
+
