@@ -16,3 +16,20 @@ export function createReducer(handlers, initialState) {
 }
 
 export const isDevelopment = process.env.REACT_APP_ENV === 'development';
+
+export function bindValue(setter) {
+  console.assert('function' === typeof setter);
+  return function ({ target: { value } }) {
+    setter(value);
+  };
+}
+
+export function bindFilters() {
+  const args = arguments;
+  return function (val) {
+    Array.prototype.forEach.call(args, function (filter) {
+      val = filter(val);
+    });
+    return val;
+  };
+}

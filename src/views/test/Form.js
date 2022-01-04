@@ -8,6 +8,7 @@ import React, {
   //createContext,
   //useContext,
 } from 'react';
+import { bindValue, bindFilters } from 'utils/cmm';
 
 let __key__ = 0;
 const generateKey = () => {
@@ -16,37 +17,27 @@ const generateKey = () => {
 };
 
 function FormInputText({ value, onChange }) {
-  function onChangeData({ target: { value } }) {
-    onChange(value);
-  }
-
   return (
     <input
       type="text"
       value={value}
-      onChange={onChangeData}
+      onChange={bindValue(onChange)}
       key={generateKey()}
     ></input>
   );
 }
 
 function FormInputRadio({ value, items, onChange }) {
-  const formId = generateKey();
-
-  function onChangeData({ target: { value } }) {
-    onChange(value);
-  }
-
   return (
     <>
       {items.map((item) => (
         <label key={generateKey()}>
           <input
             type="radio"
-            name={'rd_' + formId}
+            name={'rd_' + generateKey()}
             checked={item.value === value}
             value={item.value}
-            onChange={onChangeData}
+            onChange={bindValue(onChange)}
           ></input>
           {item.text}
         </label>
@@ -88,16 +79,19 @@ function FormInputCheck({ items, onChange }) {
 function Checkbox({ item, value, onChange }) {
   const data = !!~value.indexOf(item.value);
 
-  function onChangeValue() {
-    const ret = !data
-      ? value.concat(item.value)
-      : value.filter((it) => it !== item.value);
-    onChange(ret);
-  }
-
   return (
     <label>
-      <input type="checkbox" checked={data} onChange={onChangeValue}></input>
+      <input
+        type="checkbox"
+        checked={data}
+        onChange={bindFilters(
+          () =>
+            data
+              ? value.filter((it) => it !== item.value)
+              : value.concat(item.value),
+          onChange
+        )}
+      ></input>
       {item.text}
     </label>
   );
@@ -107,7 +101,7 @@ function FormInputCheck2({ value, items, onChange }) {
   return (
     <>
       {items &&
-        items.map((item, idx) => (
+        items.map((item) => (
           <Checkbox
             key={generateKey()}
             item={item}
@@ -119,21 +113,13 @@ function FormInputCheck2({ value, items, onChange }) {
   );
 }
 
-function FormTextarea({ value, onChange }) {
-  function onChangeData({ target: { value } }) {
-    onChange(value);
-  }
-
-  return <textarea value={value} onChange={onChangeData}></textarea>;
-}
+const FormTextarea = ({ value, onChange }) => (
+  <textarea value={value} onChange={bindValue(onChange)}></textarea>
+);
 
 function FormSelect({ items, value, onChange }) {
-  function onChangeValue({ target: { value } }) {
-    onChange(value);
-  }
-
   return (
-    <select value={value} onChange={onChangeValue}>
+    <select value={value} onChange={bindValue(onChange)}>
       <option value="">select</option>
       {items.map((it) => (
         <option value={it.value} key={generateKey()}>
@@ -158,10 +144,7 @@ export default function Form() {
       <hr />
       <div>
         <h2>Input Text</h2>
-        <FormInputText
-          value={value1}
-          onChange={(v) => setValue1(v)}
-        ></FormInputText>{' '}
+        <FormInputText value={value1} onChange={setValue1}></FormInputText>{' '}
         {value1}
       </div>
       <hr />
@@ -170,7 +153,7 @@ export default function Form() {
         <FormInputRadio
           value={value2}
           items={items}
-          onChange={(v) => setValue2(v)}
+          onChange={setValue2}
         ></FormInputRadio>{' '}
         {value2}
       </div>
@@ -180,7 +163,7 @@ export default function Form() {
         <FormInputCheck
           items={items}
           value={value3}
-          onChange={(v) => setValue3(v)}
+          onChange={setValue3}
         ></FormInputCheck>{' '}
         {value3}
       </div>
@@ -190,19 +173,14 @@ export default function Form() {
         <FormInputCheck2
           items={items}
           value={value3}
-          onChange={(v) => {
-            setValue3(v);
-          }}
+          onChange={setValue3}
         ></FormInputCheck2>{' '}
         {value3}
       </div>
       <hr />
       <div>
         <h2>Textarea</h2>
-        <FormTextarea
-          value={value1}
-          onChange={(v) => setValue1(v)}
-        ></FormTextarea>{' '}
+        <FormTextarea value={value1} onChange={setValue1}></FormTextarea>{' '}
         {value1}
       </div>
       <hr />
@@ -211,7 +189,7 @@ export default function Form() {
         <FormSelect
           items={items}
           value={value2}
-          onChange={(v) => setValue2(v)}
+          onChange={setValue2}
         ></FormSelect>{' '}
         {value2}
       </div>
